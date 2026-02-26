@@ -22,12 +22,22 @@ function openSettings() {
 }
 
 async function testConnection() {
-  const url = backendInput.value.replace(/\/+$/, '').trim() || '/api'
+  const url = backendInput.value.replace(/\/+$/, '').trim() || getBackendUrl()
   backendStatus.value = 'testing'
   try {
     const res = await fetch(`${url}/meme/version`)
     if (res.ok) {
-      backendStatus.value = 'ok'
+      const contentType = res.headers.get('content-type') || ''
+      if (contentType.includes('text/html')) {
+        backendStatus.value = 'error'
+      } else {
+        const text = await res.text()
+        if (/^\d+\.\d+/.test(text.trim())) {
+          backendStatus.value = 'ok'
+        } else {
+          backendStatus.value = 'error'
+        }
+      }
     } else {
       backendStatus.value = 'error'
     }
