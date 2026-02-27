@@ -115,7 +115,9 @@ function resetBackend() {
     <main class="flex-1">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
-          <component :is="Component" />
+          <keep-alive include="MemeList">
+            <component :is="Component" />
+          </keep-alive>
         </transition>
       </router-view>
     </main>

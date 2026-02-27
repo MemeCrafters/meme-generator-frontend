@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+defineOptions({ name: 'MemeList' })
+import { ref, computed, onMounted, onUnmounted, onActivated, onDeactivated, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import type { MemeInfo } from '../types'
 import type { SortBy } from '../api'
@@ -8,6 +9,30 @@ import MemeCard from '../components/MemeCard.vue'
 
 const router = useRouter()
 const route = useRoute()
+
+let savedScrollY = 0
+
+onDeactivated(() => {
+  savedScrollY = window.scrollY
+})
+
+onActivated(() => {
+  // Apply tag from query param (e.g. clicked from MemeGenerator)
+  const tagParam = route.query.tag as string | undefined
+  if (tagParam && allTags.value.includes(tagParam)) {
+    selectedTag.value = tagParam
+    shuffleTags()
+    // Scroll to top when filtering by a new tag
+    nextTick(() => window.scrollTo(0, 0))
+  } else {
+    if (tagParam && !allTags.value.includes(tagParam)) {
+      selectedTag.value = null
+    }
+    nextTick(() => {
+      setTimeout(() => window.scrollTo(0, savedScrollY), 50)
+    })
+  }
+})
 
 const allMemes = ref<MemeInfo[]>([])
 const searchQuery = ref('')
@@ -97,7 +122,15 @@ watch(searchQuery, (val) => {
 })
 
 function selectTag(tag: string) {
-  selectedTag.value = selectedTag.value === tag ? null : tag
+  if (selectedTag.value === tag) {
+    selectedTag.value = null
+    // Remove tag query from URL
+    router.replace({ name: 'home', query: {} })
+  } else {
+    selectedTag.value = tag
+    // Add tag query to URL
+    router.replace({ name: 'home', query: { tag } })
+  }
 }
 
 function selectSort(key: string) {
