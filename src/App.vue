@@ -65,7 +65,7 @@ function resetBackend() {
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
           <router-link to="/" class="flex items-center gap-3 transition-opacity hover:opacity-80">
-            <span class="text-2xl">😂</span>
+            <img src="/favicon.ico" alt="logo" class="h-7 w-7" />
             <h1
               class="bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-xl font-bold text-transparent"
             >
