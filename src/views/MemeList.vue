@@ -1,6 +1,15 @@
 <script setup lang="ts">
 defineOptions({ name: 'MemeList' })
-import { ref, computed, onMounted, onUnmounted, onActivated, onDeactivated, watch, nextTick } from 'vue'
+import {
+  ref,
+  computed,
+  onMounted,
+  onUnmounted,
+  onActivated,
+  onDeactivated,
+  watch,
+  nextTick,
+} from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import type { MemeInfo } from '../types'
 import type { SortBy } from '../api'
@@ -9,6 +18,15 @@ import MemeCard from '../components/MemeCard.vue'
 
 const router = useRouter()
 const route = useRoute()
+
+// 回到顶部按钮相关
+const showBackToTop = ref(false)
+function handleScroll() {
+  showBackToTop.value = window.scrollY > 400
+}
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
 
 let savedScrollY = 0
 
@@ -189,6 +207,9 @@ onMounted(async () => {
   shuffleTags()
   // Close sort menu on outside click
   document.addEventListener('click', onClickOutsideSortMenu)
+
+  // 监听滚动事件
+  window.addEventListener('scroll', handleScroll)
 })
 
 function onClickOutsideSortMenu(e: MouseEvent) {
@@ -202,6 +223,7 @@ function onClickOutsideSortMenu(e: MouseEvent) {
 
 onUnmounted(() => {
   document.removeEventListener('click', onClickOutsideSortMenu)
+  window.removeEventListener('scroll', handleScroll)
 })
 </script>
 
@@ -448,5 +470,20 @@ onUnmounted(() => {
     >
       {{ displayedMemes.length }} 个结果
     </div>
+
+    <!-- 回到顶部按钮 -->
+    <Transition name="fade">
+      <button
+        v-if="showBackToTop"
+        @click="scrollToTop"
+        class="fixed bottom-8 right-8 z-50 rounded-full bg-primary-500 p-3 text-white shadow-lg transition-colors hover:bg-primary-600"
+        style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12)"
+        title="回到顶部"
+      >
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        </svg>
+      </button>
+    </Transition>
   </div>
 </template>
