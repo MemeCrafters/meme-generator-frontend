@@ -69,7 +69,7 @@ const sortLabels: Record<SortBy, string> = {
   date_created: '创建时间',
   date_modified: '修改时间',
 }
-const TAG_DISPLAY_COUNT = 6
+const TAG_DISPLAY_COUNT = 8
 const displayedTags = ref<string[]>([])
 const tagFading = ref(false)
 
@@ -298,25 +298,21 @@ onUnmounted(() => {
     </div>
 
     <!-- Tags filter -->
-    <div v-if="allTags.length" class="mb-8 flex items-center justify-center gap-2">
-      <div
-        class="flex items-center gap-2 transition-opacity duration-200"
-        :class="tagFading ? 'opacity-0' : 'opacity-100'"
-      >
+    <div v-if="allTags.length" class="mb-8 flex flex-wrap items-center justify-center gap-2">
+      <template v-for="tag in displayedTags" :key="tag">
         <button
-          v-for="tag in displayedTags"
-          :key="tag"
           @click="selectTag(tag)"
           :class="[
-            'whitespace-nowrap rounded-lg px-4 py-1.5 text-[13px] font-medium transition-colors duration-150',
+            'whitespace-nowrap rounded-lg px-4 py-1.5 text-[13px] font-medium transition-all duration-200',
             selectedTag === tag
               ? 'bg-gray-900 text-white'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
+            tagFading ? 'opacity-0' : 'opacity-100',
           ]"
         >
           {{ tag }}
         </button>
-      </div>
+      </template>
       <button
         @click="refreshTags"
         class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-400 transition-all duration-200 hover:bg-gray-200 hover:text-gray-600"
