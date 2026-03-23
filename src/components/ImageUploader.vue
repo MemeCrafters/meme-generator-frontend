@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import type { ImageItem } from '../types'
 import { uploadImage } from '../api'
 
@@ -61,6 +61,33 @@ function onDrop(event: DragEvent) {
     handleFiles(event.dataTransfer.files)
   }
 }
+
+function onPaste(event: ClipboardEvent) {
+  if (!canAdd.value) return
+  const items = event.clipboardData?.items
+  if (!items) return
+
+  const imageFiles: File[] = []
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      const file = item.getAsFile()
+      if (file) imageFiles.push(file)
+    }
+  }
+
+  if (imageFiles.length > 0) {
+    event.preventDefault()
+    handleFiles(imageFiles)
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('paste', onPaste)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('paste', onPaste)
+})
 
 function removeImage(index: number) {
   const newImages = [...props.images]
@@ -218,7 +245,7 @@ function moveImage(index: number, direction: -1 | 1) {
             d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
           />
         </svg>
-        <p class="text-sm text-gray-500">点击或拖放图片到这里上传</p>
+        <p class="text-sm text-gray-500">点击、拖放或粘贴图片到这里上传</p>
         <p class="mt-1 text-xs text-gray-400">还可上传 {{ max - images.length }} 张</p>
       </div>
     </div>
